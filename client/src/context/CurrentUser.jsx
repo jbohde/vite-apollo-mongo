@@ -2,13 +2,11 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState
 } from 'react';
 import decode from 'jwt-decode';
 import { useCookies } from 'react-cookie';
-import { useNavigate } from 'react-router-dom';
 
 export const CurrentUserContext = createContext();
 
@@ -16,21 +14,16 @@ export const CurrentUserContext = createContext();
 export const useCurrentUserContext = () => useContext(CurrentUserContext);
 
 export default function CurrentUserContextProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState({ isAuthenticated: false });
   const [cookies, setCookies, removeCookies] = useCookies(['auth_token']);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    let ignore = false;
-    if (cookies.auth_token) {
-      const token = cookies.auth_token;
-      const user = decode(token);
-      if (!ignore) {
-        setCurrentUser({ ...user, isAuthenticated: true });
-      }
-    }
-    return () => { ignore = true; };
-  }, [cookies]);
+  let initialUser = { isAuthenticated: false };
+
+  if (cookies.auth_token) {
+    const decodedToken = decode(cookies.auth_token);
+    initialUser = { ...decodedToken.data, isAuthenticated: true }
+  }
+
+  const [currentUser, setCurrentUser] = useState(initialUser);
 
   const loginUser = useCallback((user, token) => {
     setCurrentUser({ ...user, isAuthenticated: true });
@@ -40,8 +33,7 @@ export default function CurrentUserContextProvider({ children }) {
   const logoutUser = useCallback(() => {
     removeCookies('auth_token');
     setCurrentUser({ isAuthenticated: false });
-    navigate('/');
-  }, [setCurrentUser, navigate,removeCookies]);
+  }, [setCurrentUser, removeCookies]);
 
   const isLoggedIn = useCallback(() => currentUser.isAuthenticated, [currentUser.isAuthenticated]);
 
