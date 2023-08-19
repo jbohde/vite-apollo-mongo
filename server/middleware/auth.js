@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const { expiration, secret }  = require('../utils/jwt');
+const { expiration, secret }  = require('../utils/constants');
 
 
 module.exports = {
