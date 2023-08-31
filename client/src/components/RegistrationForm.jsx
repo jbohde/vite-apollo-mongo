@@ -29,8 +29,8 @@ export default function Registration() {
           password: formState.password,
         },
       });
-      const { token, user } = mutationResponse.data.register;
-      loginUser(user, token);
+      const { token, currentUser } = mutationResponse.data.register;
+      loginUser(currentUser, token);
       navigate('/dashboard');
     } catch (e) {
     // eslint-disable-next-line no-console
